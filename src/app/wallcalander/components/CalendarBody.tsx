@@ -17,6 +17,7 @@ interface CalendarBodyProps {
   range:          DateRange;
   today:          string; // ISO YYYY-MM-DD
   onDayClick:     (iso: string) => void;
+  onDayDoubleClick?: (iso: string) => void;
   onClearRange:   () => void;
   selecting:      boolean;
   notesRef:       React.RefObject<HTMLDivElement>;
@@ -25,13 +26,14 @@ interface CalendarBodyProps {
   onDeleteEvent?: (eventId: string) => void;
   events?:        CalendarEvent[];
   selectedDate?:  string | null;
+  onAddEvent?:    () => void;
 }
 
 export default function CalendarBody({
   year, month, range, today,
-  onDayClick, onClearRange, selecting,
+  onDayClick, onDayDoubleClick, onClearRange, selecting,
   notesRef, notes, onNotesChange, events = [],
-  selectedDate, onDeleteEvent,
+  selectedDate, onDeleteEvent, onAddEvent
 }: CalendarBodyProps) {
 
   function handleDeleteNote() {
@@ -46,6 +48,7 @@ export default function CalendarBody({
         range={range}
         selecting={selecting}
         onClear={onClearRange}
+        onAddEvent={onAddEvent}
       />
 
       {/* Two-column layout: Notes | Calendar Grid */}
@@ -73,6 +76,7 @@ export default function CalendarBody({
             range={range}
             today={today}
             onDayClick={onDayClick}
+            onDayDoubleClick={onDayDoubleClick}
             selecting={selecting}
             events={events}
             onDeleteEvent={onDeleteEvent}

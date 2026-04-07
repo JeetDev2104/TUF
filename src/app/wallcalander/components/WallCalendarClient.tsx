@@ -145,37 +145,48 @@ export default function WallCalendarClient() {
     }, 290);
   }, [isFlipping, viewYear, viewMonth]);
 
-  // ── Date range selection ─────────────────────────────────────────────────
+  // ── Date selection & Double Click ──────────────────────────────────────────
   const handleDayClick = useCallback((isoDate: string) => {
-    // Track the clicked date for notes context
-    setSelectedDate(isoDate);
-
-    setRange(prev => {
-      if (!selecting && !prev.start) {
-        setSelecting(true);
-        return { start: isoDate, end: null };
-      }
-      if (selecting || (prev.start && !prev.end)) {
-        const s = prev.start!;
+    setRange((prev) => {
+      // 1. If we click a DIFFERENT date while a SINGLE date is already selected
+      if (prev.start && prev.start === prev.end && prev.start !== isoDate) {
+        const s = prev.start;
         let newRange: DateRange;
-
         if (isoDate < s) {
           newRange = { start: isoDate, end: s };
-        } else if (isoDate === s) {
-          newRange = { start: isoDate, end: isoDate };
         } else {
           newRange = { start: s, end: isoDate };
         }
-
+        
+        setSelectedDate(isoDate);
         setSelecting(false);
         setPendingRange(newRange);
         setModalOpen(true);
         return newRange;
       }
-      setSelecting(true);
-      return { start: isoDate, end: null };
+
+      // 2. If we click the EXACT SAME lone selected date (Toggle off)
+      if (prev.start === isoDate && prev.end === isoDate) {
+        setSelectedDate(null);
+        setSelecting(false);
+        return { start: null, end: null };
+      }
+
+      // 3. Fallback: Select the single date (e.g. if nothing selected, or clearing an old range)
+      setSelectedDate(isoDate);
+      setSelecting(false);
+      return { start: isoDate, end: isoDate };
     });
-  }, [selecting]);
+  }, []);
+
+  const handleDayDoubleClick = useCallback((isoDate: string) => {
+    setSelectedDate(isoDate);
+    const newRange = { start: isoDate, end: isoDate };
+    setRange(newRange);
+    setSelecting(false);
+    setPendingRange(newRange);
+    setModalOpen(true);
+  }, []);
 
   const clearRange = useCallback(() => {
     setRange({ start: null, end: null });
@@ -267,6 +278,7 @@ export default function WallCalendarClient() {
               range={range}
               today={todayISO()}
               onDayClick={handleDayClick}
+              onDayDoubleClick={handleDayDoubleClick}
               onClearRange={clearRange}
               selecting={selecting}
               notesRef={notesRef}
@@ -275,6 +287,11 @@ export default function WallCalendarClient() {
               events={events}
               selectedDate={selectedDate}
               onDeleteEvent={handleDeleteEvent}
+              onAddEvent={() => {
+                const newRange = range.start ? range : { start: todayISO(), end: todayISO() };
+                setPendingRange(newRange);
+                setModalOpen(true);
+              }}
             />
           </div>
         </div>

@@ -16,6 +16,7 @@ interface CalendarGridProps {
   range:      DateRange;
   today:      string; // ISO YYYY-MM-DD
   onDayClick: (iso: string) => void;
+  onDayDoubleClick?: (iso: string) => void;
   selecting:  boolean;
   events?:    CalendarEvent[];
   onDeleteEvent?: (eventId: string) => void;
@@ -218,7 +219,7 @@ function EventTooltip({ iso, events, holiday, colIndex, onDeleteEvent }: EventTo
 }
 
 export default function CalendarGrid({
-  year, month, range, today, onDayClick, selecting, events = [], onDeleteEvent,
+  year, month, range, today, onDayClick, onDayDoubleClick, selecting, events = [], onDeleteEvent,
 }: CalendarGridProps) {
   const [hoveredIso, setHoveredIso] = useState<string | null>(null);
 
@@ -375,6 +376,7 @@ export default function CalendarGrid({
               <div
                 key={`cell-${cell.iso}`}
                 onClick={() => isCurrent && onDayClick(cell.iso)}
+                onDoubleClick={() => isCurrent && onDayDoubleClick?.(cell.iso)}
                 onMouseEnter={() => isCurrent && setHoveredIso(cell.iso)}
                 onMouseLeave={() => setHoveredIso(null)}
                 className="flex flex-col items-center justify-center relative group"
