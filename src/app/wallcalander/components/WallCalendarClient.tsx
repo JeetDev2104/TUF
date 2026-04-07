@@ -9,6 +9,7 @@ import OnboardingTour from './OnboardingTour';
 import MonthNavigation from './MonthNavigation';
 import AddEventModal, { CalendarEvent } from './AddEventModal';
 import MonthTransitionEffect from './MonthTransitionEffect';
+import { HelpCircle } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface DateRange {
@@ -221,6 +222,19 @@ export default function WallCalendarClient() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-300 via-slate-200 to-blue-100 flex items-start justify-center py-8 px-4">
 
+      {/* Floating Replay Tutorial Button */}
+      <button
+        onClick={() => {
+          setOnboardingStep(0);
+          setShowOnboarding(true);
+        }}
+        aria-label="Replay Tutorial"
+        title="Replay Tutorial"
+        className="fixed bottom-4 right-4 z-50 flex items-center justify-center bg-white/70 backdrop-blur-md border border-white/50 text-[#0078D4] p-3 rounded-full shadow-lg hover:scale-110 hover:bg-white active:scale-95 transition-all duration-200"
+      >
+        <HelpCircle size={22} strokeWidth={2.5} />
+      </button>
+
       {showOnboarding && (
         <OnboardingTour
           step={onboardingStep}
@@ -243,7 +257,7 @@ export default function WallCalendarClient() {
         onSave={handleEventSave}
       />
 
-      <div className="flip-perspective w-full max-w-xl mx-auto">
+      <div className="flip-perspective w-full max-w-xl mx-auto relative z-10">
         <WireBinding />
 
         <div

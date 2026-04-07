@@ -471,8 +471,8 @@ export default function CalendarGrid({
                   </div>
                 )}
 
-                {/* Event Tooltip — shown on hover for dates with events or holidays */}
-                {isHovered && hasTooltip && (
+                {/* Event Tooltip — shown on hover OR when selected (for mobile accessibility) */}
+                {(isHovered || (isStart && isEnd)) && hasTooltip && (
                   <EventTooltip
                     iso={cell.iso}
                     events={events}
