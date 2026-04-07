@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cal-blue: #0078D4;
+  --cal-blue-light: #1E90FF;
+  --cal-blue-pale: #E8F4FD;
+  --cal-blue-dark: #005A9E;
+  --cal-white: #FFFFFF;
+  --cal-gray: #F5F7FA;
+  --cal-text: #1A2B3C;
+  --cal-text-light: #6B7A8D;
+  --cal-weekend: #0078D4;
+  --cal-line: #D0DCE8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular nums for date cells */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Calendar shadow */
+.calendar-shadow {
+  box-shadow: 0 20px 60px rgba(0, 120, 212, 0.18), 0 8px 32px rgba(0,0,0,0.14);
+}
+
+/* Page flip perspective wrapper */
+.flip-perspective {
+  perspective: 1200px;
+  perspective-origin: center top;
+}
+
+/* Flip animations */
+@keyframes flipOutForward {
+  0%   { transform: rotateX(0deg) translateY(0); opacity: 1; }
+  40%  { transform: rotateX(-70deg) translateY(-10px); opacity: 0.4; }
+  100% { transform: rotateX(-90deg) translateY(-20px); opacity: 0; }
+}
+@keyframes flipInForward {
+  0%   { transform: rotateX(90deg) translateY(-20px); opacity: 0; }
+  60%  { transform: rotateX(70deg) translateY(-10px); opacity: 0.4; }
+  100% { transform: rotateX(0deg) translateY(0); opacity: 1; }
+}
+@keyframes flipOutBackward {
+  0%   { transform: rotateX(0deg) translateY(0); opacity: 1; }
+  40%  { transform: rotateX(70deg) translateY(-10px); opacity: 0.4; }
+  100% { transform: rotateX(90deg) translateY(-20px); opacity: 0; }
+}
+@keyframes flipInBackward {
+  0%   { transform: rotateX(-90deg) translateY(-20px); opacity: 0; }
+  60%  { transform: rotateX(-70deg) translateY(-10px); opacity: 0.4; }
+  100% { transform: rotateX(0deg) translateY(0); opacity: 1; }
+}
+
+.flip-out-forward  { animation: flipOutForward 0.28s ease-in forwards; transform-origin: top center; }
+.flip-in-forward   { animation: flipInForward 0.32s ease-out forwards; transform-origin: top center; }
+.flip-out-backward { animation: flipOutBackward 0.28s ease-in forwards; transform-origin: top center; }
+.flip-in-backward  { animation: flipInBackward 0.32s ease-out forwards; transform-origin: top center; }
+
+/* Calendar entry */
+@keyframes calendarEnter {
+  0%   { opacity: 0; transform: translateY(24px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.calendar-enter { animation: calendarEnter 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* Day cell hover ring */
+@keyframes dayPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.12); }
+  100% { transform: scale(1.08); }
+}
+
+/* Range in-between pulse */
+@keyframes rangePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.82; }
+}
+.range-pulse { animation: rangePulse 2s ease-in-out infinite; }
+
+/* Shimmer for hero loading */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* Tooltip bounce */
+@keyframes tooltipBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+.tooltip-bounce { animation: tooltipBounce 1.8s ease-in-out infinite; }
+
+/* Onboarding overlay fade */
+@keyframes overlayFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.overlay-fade { animation: overlayFade 0.3s ease forwards; }
+
+/* Note line pulse on focus */
+.note-line-active {
+  background: linear-gradient(90deg, var(--cal-blue) 0%, var(--cal-blue-light) 100%);
+  height: 1.5px;
+  transition: width 0.3s ease;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
