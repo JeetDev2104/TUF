@@ -5,8 +5,8 @@
 // Notes are saved to localStorage via parent.
 // When a date is selected, it's displayed aesthetically as a note header.
 
-import React, { useRef, useState } from 'react';
-import { Pencil, Check, CalendarDays, Trash2 } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Pencil, Check, CalendarDays, Trash2, Circle, CheckCircle } from 'lucide-react';
 
 interface NotesSectionProps {
   notes:        string;
@@ -57,6 +57,30 @@ export default function NotesSection({ notes, onChange, onDelete, selectedDate }
   const [saved,   setSaved]   = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  const [completingLines, setCompletingLines] = useState<number[]>([]);
+  const notesRef = useRef(notes);
+
+  useEffect(() => {
+    notesRef.current = notes;
+  }, [notes]);
+
+  const handleCompleteTask = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    if (completingLines.includes(index) || completingLines.length > 0) return; // one at a time for safety
+    setCompletingLines(prev => [...prev, index]);
+
+    setTimeout(() => {
+      setCompletingLines(prev => prev.filter(p => p !== index));
+      
+      const currentLines = notesRef.current.split('\n');
+      // Replace with empty string so indices don't shift instantly for other animations
+      // We will filter out empty strings eventually, but to be simple, let's just remove it.
+      // Since we only allow one at a time, index slicing is totally safe here.
+      const newLines = currentLines.filter((_, i) => i !== index);
+      onChange(newLines.join('\n'));
+    }, 700); // 350ms strike + 50ms pause + 300ms fade = 700ms total
+  };
 
   function handleEdit() {
     setEditing(true);
@@ -257,27 +281,71 @@ export default function NotesSection({ notes, onChange, onDelete, selectedDate }
               cursor: 'text',
               overflow: 'hidden',
             }}
-            onClick={handleEdit}
+            onClick={e => {
+              // Only enter edit mode if they click the notepad background, not a tick
+              if ((e.target as HTMLElement).closest('.tick-btn')) return;
+              handleEdit();
+            }}
             role="button"
             aria-label="Click to edit notes"
             tabIndex={0}
             onKeyDown={e => { if (e.key === 'Enter') handleEdit(); }}
           >
             {notes ? (
-              lines.slice(0, LINE_COUNT).map((line, i) => (
-                <div
-                  key={`note-line-${i}`}
-                  style={{
-                    height: '28px',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    color: line ? '#1A2B3C' : 'transparent',
-                  }}
-                >
-                  {line || '·'}
-                </div>
-              ))
+              lines.slice(0, LINE_COUNT).map((line, i) => {
+                const isCompleting = completingLines.includes(i);
+                return (
+                  <div
+                    key={`note-line-${i}`}
+                    style={{
+                      height: '28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: line ? '#1A2B3C' : 'transparent',
+                      opacity: isCompleting ? 0 : 1,
+                      transition: isCompleting ? 'opacity 0.3s ease 0.35s' : 'none',
+                    }}
+                  >
+                    {line ? (
+                      <button 
+                        className="tick-btn group flex-shrink-0 flex items-center justify-center transition-all duration-200"
+                        onClick={(e) => handleCompleteTask(e, i)}
+                        style={{ width: '16px', height: '16px', marginRight: '6px', cursor: 'pointer', background: 'transparent', border: 'none', padding: 0 }}
+                        aria-label="Complete task"
+                        tabIndex={-1}
+                      >
+                        {isCompleting ? (
+                          <CheckCircle size={12} className="text-[#10B981]" strokeWidth={2.5} />
+                        ) : (
+                          <>
+                            <Circle size={10} className="text-[#CBD5E1] group-hover:hidden" strokeWidth={2} />
+                            <CheckCircle size={12} className="hidden group-hover:block text-[#10B981]" strokeWidth={2.5} />
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <div style={{ width: '16px', marginRight: '6px' }} />
+                    )}
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
+                      <span style={{ position: 'relative', display: 'inline-block' }}>
+                        {line || '·'}
+                        {isCompleting && (
+                          <div 
+                            style={{
+                              position: 'absolute',
+                              left: 0,
+                              top: '50%',
+                              height: '1.5px',
+                              background: '#10B981',
+                              animation: 'strikeThrough 0.35s cubic-bezier(0.65, 0, 0.35, 1) forwards',
+                            }} 
+                          />
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
             ) : (
               <div
                 style={{
